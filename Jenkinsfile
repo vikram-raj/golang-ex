@@ -25,6 +25,6 @@ osio {
      // performs an s2i build
     build resources: resources
     
-    deploy resources: resources, env: 'stage', tag:'latest'
+    deploy resources: resources, env: 'stage', meta:'latest'
   }
 }

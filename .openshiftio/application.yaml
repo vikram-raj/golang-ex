@@ -46,9 +46,9 @@ objects:
   spec:
     tags:
     - name: latest
-        from:
-          kind: DockerImage
-          name: 'centos/go-toolset-7-centos7' 
+      from:
+        kind: DockerImage
+        name: 'centos/go-toolset-7-centos7' 
 - apiVersion: v1
   kind: BuildConfig
   metadata:

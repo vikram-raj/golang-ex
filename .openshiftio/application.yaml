@@ -97,7 +97,7 @@ objects:
         - golang-ex
         from:
           kind: ImageStreamTag
-          name: golang-ex:latest
+          name: golang-ex${SUFFIX_NAME}:latest
     - type: ConfigChange
     replicas: 1
     selector:

@@ -36,7 +36,7 @@ objects:
 - kind: ImageStream
   apiVersion: v1
   metadata:
-    name: golang-ex{SUFFIX_NAME}
+    name: golang-ex${SUFFIX_NAME}
     annotations:
       description: Keeps track of changes in the application image
 - apiVersion: v1
@@ -57,7 +57,7 @@ objects:
     output:
       to:
         kind: ImageStreamTag
-        name: 'golang-ex{SUFFIX_NAME}:latest'
+        name: 'golang-ex${SUFFIX_NAME}:latest'
     postCommit: {}
     resources: {}
     source:

@@ -1,140 +1,123 @@
----
 kind: Template
 apiVersion: v1
 metadata:
   name: golang-ex
   annotations:
-    description: An example Beego (http://beego.me/) application written in Golang
-    tags: quickstart,golang
+    description: 'An example Beego (http://beego.me/) application written in Golang'
+    tags: 'quickstart,golang'
     iconClass: icon-go-gopher
 labels:
   template: golang-ex
   app: golang-ex
 objects:
-- kind: Service
-  apiVersion: v1
-  metadata:
-    name: golang-ex
-    annotations:
-      description: Exposes and load balances the application pods
-  spec:
-    ports:
-    - name: web
-      port: 8080
-      targetPort: 8080
-    selector:
-      name: golang-ex
-- kind: Route
-  apiVersion: v1
-  metadata:
-    name: golang-ex
-  spec:
-    host: "${APPLICATION_DOMAIN}"
-    to:
-      kind: Service
-      name: golang-ex
-- kind: ImageStream
-  apiVersion: v1
-  metadata:
-    name: golang-ex
-    annotations:
-      description: Keeps track of changes in the application image
-- apiVersion: v1
-  kind: ImageStream
+  -
+    kind: Service
+    apiVersion: v1
     metadata:
-      name: runtime-${SUFFIX_NAME}
+      name: golang-ex
+      annotations:
+        description: 'Exposes and load balances the application pods'
+    spec:
+      ports:
+        -
+          name: web
+          port: 8080
+          targetPort: 8080
+      selector:
+        name: golang-ex
+  -
+    kind: Route
+    apiVersion: v1
+    metadata:
+      name: golang-ex
+    spec:
+      host: '${APPLICATION_DOMAIN}'
+      to:
+        kind: Service
+        name: golang-ex
+  -
+    kind: ImageStream
+    apiVersion: v1
+    metadata:
+      name: golang-ex
+      annotations:
+        description: 'Keeps track of changes in the application image'
+  -
+    apiVersion: v1
+    kind: ImageStream
+    metadata:
+      name: 'runtime-${SUFFIX_NAME}'
     spec:
       tags:
-        - name: latest
-          from:
-            kind: DockerImage
-            name: 'centos/go-toolset-7-centos7' 
-- apiVersion: v1
-  kind: BuildConfig
+        -
+          name: "latest\nfrom:\n  kind: DockerImage\n  name: 'centos/go-toolset-7-centos7'"
+  -
+    apiVersion: v1
+    kind: "BuildConfig\nmetadata:\n  name: golang-ex${SUFFIX_NAME}\nspec:\n  output:\n    to:\n      kind: ImageStreamTag\n      name: 'golang-ex${SUFFIX_NAME}:latest'\n  postCommit: {}\n  resources: {}\n  source:\n    git:\n      uri: '${SOURCE_REPOSITORY_URL}'\n      ref: '${SOURCE_REPOSITORY_REF}'\n    type: Git\n  strategy:\n    type: Source\n    sourceStrategy:\n      from:\n        kind: ImageStreamTag\n        name: 'runtime${SUFFIX_NAME}:latest'\n      incremental: true\n  triggers:\n    - github:\n        secret: '${GITHUB_WEBHOOK_SECRET}'\n      type: GitHub\n    - type: ConfigChange\n    - imageChange: {}\n      type: ImageChange\nstatus:\n  lastVersion: 0"
+  -
+    kind: DeploymentConfig
+    apiVersion: v1
     metadata:
-      name: golang-ex${SUFFIX_NAME}
-    spec:
-      output:
-        to:
-          kind: ImageStreamTag
-          name: 'golang-ex${SUFFIX_NAME}:latest'
-      postCommit: {}
-      resources: {}
-      source:
-        git:
-          uri: '${SOURCE_REPOSITORY_URL}'
-          ref: '${SOURCE_REPOSITORY_REF}'
-        type: Git
-      strategy:
-        type: Source
-        sourceStrategy:
-          from:
-            kind: ImageStreamTag
-            name: 'runtime${SUFFIX_NAME}:latest'
-          incremental: true
-      triggers:
-        - github:
-            secret: '${GITHUB_WEBHOOK_SECRET}'
-          type: GitHub
-        - type: ConfigChange
-        - imageChange: {}
-          type: ImageChange
-    status:
-      lastVersion: 0
-- kind: DeploymentConfig
-  apiVersion: v1
-  metadata:
-    name: golang-ex
-    annotations:
-      description: Defines how to deploy the application server
-  spec:
-    strategy:
-      type: Recreate
-    triggers:
-    - type: ImageChange
-      imageChangeParams:
-        automatic: true
-        containerNames:
-        - golang-ex
-        from:
-          kind: ImageStreamTag
-          name: golang-ex:latest
-    - type: ConfigChange
-    replicas: 1
-    selector:
       name: golang-ex
-    template:
-      metadata:
+      annotations:
+        description: 'Defines how to deploy the application server'
+    spec:
+      strategy:
+        type: Recreate
+      triggers:
+        -
+          type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - golang-ex
+            from:
+              kind: ImageStreamTag
+              name: 'golang-ex:latest'
+        -
+          type: ConfigChange
+      replicas: 1
+      selector:
         name: golang-ex
-        labels:
+      template:
+        metadata:
           name: golang-ex
-      spec:
-        containers:
-        - name: golang-ex
-          image: golang-ex
-          ports:
-          - containerPort: 8080
+          labels:
+            name: golang-ex
+        spec:
+          containers:
+            -
+              name: golang-ex
+              image: golang-ex
+              ports:
+                -
+                  containerPort: 8080
 parameters:
-  - name: SUFFIX_NAME
-    description: The suffix name for the template objects
-    displayName: Suffix name
-  - name: SOURCE_REPOSITORY_URL
-    description: The source URL for the application
-    displayName: Source URL
+  -
+    name: SUFFIX_NAME
+    description: 'The suffix name for the template objects'
+    displayName: 'Suffix name'
+  -
+    name: SOURCE_REPOSITORY_URL
+    description: 'The source URL for the application'
+    displayName: 'Source URL'
     required: true
-  - name: SOURCE_REPOSITORY_REF
-    description: The branch name for the application
-    displayName: Source Branch
+  -
+    name: SOURCE_REPOSITORY_REF
+    description: 'The branch name for the application'
+    displayName: 'Source Branch'
     value: master
     required: true
-  - name: SOURCE_REPOSITORY_DIR
-    description: The location within the source repo of the application
-    displayName: Source Directory
+  -
+    name: SOURCE_REPOSITORY_DIR
+    description: 'The location within the source repo of the application'
+    displayName: 'Source Directory'
     value: .
     required: true
-  - name: GITHUB_WEBHOOK_SECRET
-    description: A secret string used to configure the GitHub webhook.
-    displayName: GitHub Webhook Secret
+  -
+    name: GITHUB_WEBHOOK_SECRET
+    description: 'A secret string used to configure the GitHub webhook.'
+    displayName: 'GitHub Webhook Secret'
     required: true
     from: '[a-zA-Z0-9]{40}'
     generate: expression

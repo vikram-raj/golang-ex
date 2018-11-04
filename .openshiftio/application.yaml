@@ -53,34 +53,34 @@ objects:
   kind: BuildConfig
   metadata:
     name: golang-ex${SUFFIX_NAME}
-    spec:
-      output:
-        to:
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: 'golang-ex${SUFFIX_NAME}:latest'
+    postCommit: {}
+    resources: {}
+    source:
+      git:
+        uri: '${SOURCE_REPOSITORY_URL}'
+        ref: '${SOURCE_REPOSITORY_REF}'
+      type: Git
+    strategy:
+      type: Source
+      sourceStrategy:
+        from:
           kind: ImageStreamTag
-          name: 'golang-ex${SUFFIX_NAME}:latest'
-      postCommit: {}
-      resources: {}
-      source:
-        git:
-          uri: '${SOURCE_REPOSITORY_URL}'
-          ref: '${SOURCE_REPOSITORY_REF}'
-        type: Git
-      strategy:
-        type: Source
-        sourceStrategy:
-          from:
-            kind: ImageStreamTag
-            name: 'runtime-golang-ex${SUFFIX_NAME}:latest'
-          incremental: true
-      triggers:
-        - github:
-            secret: '${GITHUB_WEBHOOK_SECRET}'
-          type: GitHub
-        - type: ConfigChange
-        - imageChange: {}
-          type: ImageChange
-    status:
-      lastVersion: 0
+          name: 'runtime-golang-ex${SUFFIX_NAME}:latest'
+        incremental: true
+    triggers:
+      - github:
+          secret: '${GITHUB_WEBHOOK_SECRET}'
+        type: GitHub
+      - type: ConfigChange
+      - imageChange: {}
+        type: ImageChange
+  status:
+    lastVersion: 0
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:

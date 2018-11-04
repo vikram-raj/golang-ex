@@ -42,7 +42,7 @@ objects:
 - apiVersion: v1
   kind: ImageStream
   metadata:
-    name: runtime-${SUFFIX_NAME}
+    name: runtime-golang-ex${SUFFIX_NAME}
   spec:
     tags:
     - name: latest
@@ -70,7 +70,7 @@ objects:
         sourceStrategy:
           from:
             kind: ImageStreamTag
-            name: 'runtime${SUFFIX_NAME}:latest'
+            name: 'runtime-golang-ex${SUFFIX_NAME}:latest'
           incremental: true
       triggers:
         - github:

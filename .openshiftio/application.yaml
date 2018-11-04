@@ -35,7 +35,7 @@ objects:
 - kind: ImageStream
   apiVersion: v1
   metadata:
-    name: golang-ex{SUFFIX_NAME}
+    name: golang-ex${SUFFIX_NAME}
     annotations:
       description: Keeps track of changes in the application image
 - apiVersion: v1

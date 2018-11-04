@@ -1,174 +1,118 @@
-
-apiVersion: v1
+---
 kind: Template
+apiVersion: v1
 metadata:
-  name: launchpad-builder
+  name: golang-ex
   annotations:
-    description: This template creates a Build Configuration using an S2I builder.
-    tags: instant-app
-parameters:
-  - name: SUFFIX_NAME
-    description: The suffix name for the template objects
-    displayName: Suffix name
-  - name: SOURCE_REPOSITORY_URL
-    description: The source URL for the application
-    displayName: Source URL
-    required: true
-  - name: SOURCE_REPOSITORY_REF
-    description: The branch name for the application
-    displayName: Source Branch
-    value: master
-    required: true
-  - name: SOURCE_REPOSITORY_DIR
-    description: The location within the source repo of the application
-    displayName: Source Directory
-    value: .
-    required: true
-  - name: GITHUB_WEBHOOK_SECRET
-    description: A secret string used to configure the GitHub webhook.
-    displayName: GitHub Webhook Secret
-    required: true
-    from: '[a-zA-Z0-9]{40}'
-    generate: expression
+    description: An example Beego (http://beego.me/) application written in Golang
+    tags: quickstart,golang
+    iconClass: icon-go-gopher
+labels:
+  template: golang-ex
+  app: golang-ex
 objects:
-  - apiVersion: v1
-    kind: ImageStream
-    metadata:
-      name: golang-ex${SUFFIX_NAME}
-    spec: {}
-  - apiVersion: v1
-    kind: ImageStream
-    metadata:
-      name: runtime${SUFFIX_NAME}
-    spec:
-      tags:
-        - name: latest
-          from:
-            kind: DockerImage
-            name: 'centos/go-toolset-7-centos7:latest'
-  - apiVersion: v1
-    kind: BuildConfig
-    metadata:
-      name: golang-ex${SUFFIX_NAME}
-    spec:
-      output:
-        to:
-          kind: ImageStreamTag
-          name: 'golang-ex${SUFFIX_NAME}:latest'
-      postCommit: {}
-      resources: {}
-      source:
-        git:
-          uri: '${SOURCE_REPOSITORY_URL}'
-          ref: '${SOURCE_REPOSITORY_REF}'
-        type: Git
-      strategy:
-        type: Source
-        sourceStrategy:
-          from:
-            kind: ImageStreamTag
-            name: 'runtime${SUFFIX_NAME}:latest'
-          incremental: true
-      triggers:
-        - github:
-            secret: '${GITHUB_WEBHOOK_SECRET}'
-          type: GitHub
-        - type: ConfigChange
-        - imageChange: {}
-          type: ImageChange
-    status:
-      lastVersion: 0
-  - apiVersion: v1
-    kind: Service
-    spec:
-      ports:
-        - protocol: TCP
-          port: 8080
-          targetPort: 8080
-      type: ClusterIP
-      selector:
-        project: golang-ex
-        provider: nodeshift
-    metadata:
-      name: golang-ex${SUFFIX_NAME}
-      labels:
-        provider: nodeshift
-        expose: 'true'
-        project: golang-ex
-        version: 2.0.0
-  - apiVersion: v1
-    kind: DeploymentConfig
-    metadata:
-      name: golang-ex${SUFFIX_NAME}
-      labels:
-        app: golang-ex
-        provider: nodeshift
-        project: golang-ex
-        version: 2.0.0
-    spec:
-      template:
-        spec:
-          containers:
-            - readinessProbe:
-                httpGet:
-                  path: /api/health/readiness
-                  port: 8080
-                  scheme: HTTP
-                failureThreshold: 3
-                initialDelaySeconds: 10
-                periodSeconds: 5
-                successThreshold: 1
-                timeoutSeconds: 1
-              livenessProbe:
-                httpGet:
-                  path: /api/health/liveness
-                  port: 8080
-                  scheme: HTTP
-                failureThreshold: 2
-                initialDelaySeconds: 60
-                periodSeconds: 3
-                successThreshold: 1
-                timeoutSeconds: 1
-              image: golang-ex${SUFFIX_NAME}
-              name: golang-ex${SUFFIX_NAME}
-              securityContext:
-                privileged: false
-              ports:
-                - containerPort: 8080
-                  name: http
-                  protocol: TCP
-        metadata:
-          labels:
-            app: golang-ex
-            project: golang-ex
-            provider: nodeshift
-            version: 2.0.0
-      replicas: 1
-      selector:
-        app: golang-ex
-        project: golang-ex
-        provider: nodeshift
-      triggers:
-        - type: ConfigChange
-        - type: ImageChange
-          imageChangeParams:
-            automatic: true
-            containerNames:
-              - golang-ex${SUFFIX_NAME}
-            from:
-              kind: ImageStreamTag
-              name: 'golang-ex${SUFFIX_NAME}:latest'
-  - apiVersion: v1
-    kind: Route
-    metadata:
-      labels:
-        project: golang-ex
-        provider: nodeshift
-        version: 2.0.0
-      name: golang-ex${SUFFIX_NAME}
-    spec:
-      port:
-        targetPort: 8080
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: golang-ex
+    annotations:
+      description: Exposes and load balances the application pods
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      targetPort: 8080
+    selector:
+      name: golang-ex
+- kind: Route
+  apiVersion: v1
+  metadata:
+    name: golang-ex
+  spec:
+    host: "${APPLICATION_DOMAIN}"
+    to:
+      kind: Service
+      name: golang-ex
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: golang-ex
+    annotations:
+      description: Keeps track of changes in the application image
+- kind: BuildConfig
+  apiVersion: v1
+  metadata:
+    name: golang-ex
+    annotations:
+      description: Defines how to build the application
+  spec:
+    source:
+      type: Git
+      git:
+        uri: "${SOURCE_REPOSITORY_URL}"
+        ref: "${SOURCE_REPOSITORY_REF}"
+      contextDir: "${CONTEXT_DIR}"
+    strategy:
+      type: Docker
+    output:
       to:
-        kind: Service
-        name: golang-ex${SUFFIX_NAME}
+        kind: ImageStreamTag
+        name: golang-ex:latest
+    triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: "${GITHUB_WEBHOOK_SECRET}"
+    postCommit:
+      script: go test -v ./...
+- kind: DeploymentConfig
+  apiVersion: v1
+  metadata:
+    name: golang-ex
+    annotations:
+      description: Defines how to deploy the application server
+  spec:
+    strategy:
+      type: Recreate
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - golang-ex
+        from:
+          kind: ImageStreamTag
+          name: golang-ex:latest
+    - type: ConfigChange
+    replicas: 1
+    selector:
+      name: golang-ex
+    template:
+      metadata:
+        name: golang-ex
+        labels:
+          name: golang-ex
+      spec:
+        containers:
+        - name: golang-ex
+          image: golang-ex
+          ports:
+          - containerPort: 8080
+parameters:
+- name: SOURCE_REPOSITORY_URL
+  description: The URL of the repository with your application source code
+  value: https://github.com/openshift/golang-ex.git
+- name: SOURCE_REPOSITORY_REF
+  description: Set this to a branch name, tag or other ref of your repository if you
+    are not using the default branch
+- name: CONTEXT_DIR
+  description: Set this to the relative path to your project if it is not in the root
+    of your repository
+- name: APPLICATION_DOMAIN
+  description: The exposed hostname that will route to the Beego service
+  value: golang-ex.openshiftapps.com
+- name: GITHUB_WEBHOOK_SECRET
+  description: Github trigger secret.  A difficult to guess string encoded as part
+    of the webhook URL.  Not encrypted.
+  generate: expression
+  from: "[a-zA-Z0-9]{40}"

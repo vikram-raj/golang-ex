@@ -40,7 +40,7 @@ objects:
     annotations:
       description: Keeps track of changes in the application image
 - apiVersion: v1
-    kind: ImageStream
+  kind: ImageStream
     metadata:
       name: runtime-${SUFFIX_NAME}
     spec:
@@ -48,9 +48,9 @@ objects:
         - name: latest
           from:
             kind: DockerImage
-            name: 'centos/go-toolset-7-centos7'
+            name: 'centos/go-toolset-7-centos7' 
 - apiVersion: v1
-    kind: BuildConfig
+  kind: BuildConfig
     metadata:
       name: golang-ex${SUFFIX_NAME}
     spec:

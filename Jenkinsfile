@@ -1,6 +1,6 @@
 #!/usr/bin/groovy
 
-@Library('github.com/sbose78/osio-pipeline@master') _
+@Library('github.com/sbose78/osio-pipeline@fix-arg') _
 
 osio {
 
@@ -25,7 +25,7 @@ osio {
      // performs an s2i build
     build resources: resources
     
-    deploy resources: resources, env: 'stage', tag:'latest' // todo: use an accurate tag
-    deploy resources: resources, env: 'run', approval: 'manual', tag:'latest' // todo: use an accurate tag
+    deploy resources: resources, env: 'stage' 
+    deploy resources: resources, env: 'run', approval: 'manual'
   }
 }

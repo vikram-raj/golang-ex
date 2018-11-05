@@ -114,6 +114,9 @@ objects:
           ports:
           - containerPort: 8080
 parameters:
+  - name: RELEASE_VERSION
+    description: The release verison/tag for the template objects
+    displayName: Release version
   - name: SUFFIX_NAME
     description: The suffix name for the template objects
     displayName: Suffix name

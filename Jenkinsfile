@@ -1,6 +1,6 @@
 #!/usr/bin/groovy
 
-@Library('github.com/sbose78/osio-pipeline@fix-arg') _
+@Library('github.com/fabric8io/osio-pipeline@master') _
 
 osio {
 

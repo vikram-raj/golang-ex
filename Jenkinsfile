@@ -2,6 +2,7 @@
 
 @Library('github.com/sbose78/osio-pipeline@master') _
 
+
 osio {
 
   config runtime: 'golang'

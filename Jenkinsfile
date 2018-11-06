@@ -11,7 +11,9 @@ osio {
     def resources = processTemplate()
     
     // performs an s2i build
-    build resources: resources
+    build resources: resources    
+    
+    deploy resources: resources, env: 'stage' 
 
   }
 

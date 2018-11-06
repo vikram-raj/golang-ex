@@ -1,4 +1,4 @@
----
+ remove though---
 kind: Template
 apiVersion: v1
 metadata:
@@ -69,7 +69,7 @@ objects:
       sourceStrategy:
         from:
           kind: ImageStreamTag
-          name: 'runtime-golang-ex${SUFFIX_NAME}'
+          name: 'runtime-golang-ex${SUFFIX_NAME}:latest'
         incremental: true
     triggers:
       - github:

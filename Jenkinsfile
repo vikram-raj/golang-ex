@@ -1,6 +1,6 @@
 #!/usr/bin/groovy
 
-@Library('github.com/fabric8io/osio-pipeline@master') _
+@Library('github.com/sbose78/osio-pipeline@master') _
 
 osio {
 

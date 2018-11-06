@@ -56,7 +56,7 @@ objects:
     output:
       to:
         kind: ImageStreamTag
-        name: 'golang-ex${SUFFIX_NAME}:latest'
+        name: 'golang-ex${SUFFIX_NAME}:${RELEASE_VERSION}'
     postCommit: {}
     resources: {}
     source:
@@ -69,7 +69,7 @@ objects:
       sourceStrategy:
         from:
           kind: ImageStreamTag
-          name: 'runtime-golang-ex${SUFFIX_NAME}:latest'
+          name: 'runtime-golang-ex${SUFFIX_NAME}:${RELEASE_VERSION}'
         incremental: true
     triggers:
       - github:

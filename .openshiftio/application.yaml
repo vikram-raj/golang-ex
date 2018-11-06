@@ -69,7 +69,7 @@ objects:
       sourceStrategy:
         from:
           kind: ImageStreamTag
-          name: 'runtime-golang-ex${SUFFIX_NAME}:${RELEASE_VERSION}'
+          name: 'runtime-golang-ex${SUFFIX_NAME}'
         incremental: true
     triggers:
       - github:

@@ -1,36 +1,30 @@
-#!/usr/bin/groovy
-
 @Library('github.com/fabric8io/osio-pipeline@master') _
-
 
 osio {
 
-  config runtime: 'golang'
+  config runtime: 'go'
 
   ci {
-     // override the RELEASE_VERSION template parameter
+
     def resources = processTemplate(params: [
-        RELEASE_VERSION: "1.0.${env.BUILD_NUMBER}"
+          release_version: "1.0.${env.BUILD_NUMBER}"
     ])
-    
-    // performs an s2i build
-    build resources: resources    
-    
-    deploy resources: resources, env: 'stage' 
+
+    build resources: resources
 
   }
 
   cd {
 
-    // override the RELEASE_VERSION template parameter
     def resources = processTemplate(params: [
-        RELEASE_VERSION: "1.0.${env.BUILD_NUMBER}"
+          release_version: "1.0.${env.BUILD_NUMBER}"
     ])
 
-     // performs an s2i build
     build resources: resources
-    
-    deploy resources: resources, env: 'stage' 
+
+    deploy resources: resources, env: 'stage'
+
     deploy resources: resources, env: 'run', approval: 'manual'
+
   }
 }

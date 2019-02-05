@@ -24,5 +24,7 @@ osio {
 
     deploy resources: resources, env: 'stage'
 
+    deploy resources: resources, env: 'run', approval: 'manual'
+
   }
 }
